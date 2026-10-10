@@ -22,3 +22,803 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0}
 body{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:#D5DEE8;font-family:var(--font);color:var(--text);font-size:16px;line-height:1.55;
+}
+button,input,select{font-family:inherit;font-size:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
+[hidden]{display:none !important}
+.ltr{direction:ltr;unicode-bidi:isolate;display:inline-block}
+
+/* ============================================================
+   إطار الهاتف (على الكمبيوتر) / ملء الشاشة (على الهاتف)
+   ============================================================ */
+#phone{
+  position:relative;width:390px;height:min(844px,calc(100vh - 32px));
+  background:var(--bg);border:8px solid #0B1F33;border-radius:42px;
+  box-shadow:0 24px 60px rgba(16,42,67,.28);overflow:hidden;
+  display:flex;flex-direction:column;
+}
+@media (max-width:520px){
+  body{display:block;background:var(--bg)}
+  #phone{width:100%;height:100vh;height:100dvh;border:0;border-radius:0;box-shadow:none}
+}
+
+/* ============================================================
+   الشريط العلوي + المحتوى + شريط التنقل السفلي
+   ============================================================ */
+#top{
+  flex:0 0 auto;display:flex;align-items:center;gap:8px;padding:10px 12px;
+  background:var(--white);border-bottom:1px solid var(--line);min-height:58px;
+  padding-top:max(10px,env(safe-area-inset-top,0px));
+}
+#top h2{flex:1;margin:0;font-size:18px;font-weight:700;text-align:right}
+.icon-btn{
+  width:44px;height:44px;border-radius:12px;border:0;background:var(--bg);
+  display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:var(--navy);
+}
+.chip{
+  display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--white);
+  border-radius:999px;padding:6px 12px;min-height:40px;font-weight:600;font-size:14px;color:var(--navy);cursor:pointer;
+}
+#main{flex:1 1 auto;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+.screen{padding:var(--pad);display:flex;flex-direction:column;gap:var(--gap);min-height:100%}
+.screen.flush{padding:0}
+#nav{
+  flex:0 0 auto;display:flex;background:var(--white);border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+#nav button{
+  flex:1;border:0;background:none;padding:8px 4px;min-height:60px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:2px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;
+}
+#nav button[aria-current="page"]{color:var(--green)}
+
+/* ============================================================
+   مكونات عامة
+   ============================================================ */
+.card{background:var(--white);border-radius:var(--r-lg);padding:var(--pad);border:1px solid var(--line)}
+.card.soft{background:var(--green-soft);border-color:#CDEBDD}
+.stack{display:flex;flex-direction:column;gap:var(--gap)}
+.row{display:flex;gap:var(--gap);align-items:center}
+.row > *{flex:1}
+.between{display:flex;justify-content:space-between;align-items:center;gap:8px}
+h1,h2,h3,p{margin:0}
+h3{font-size:17px;font-weight:700}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.fine{font-size:12.5px;color:var(--muted);text-align:center}
+
+.btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:52px;
+  border-radius:var(--r-md);border:2px solid transparent;padding:10px 16px;font-weight:700;cursor:pointer;
+  transition:transform .08s ease,background .15s ease;
+}
+.btn:active{transform:scale(.98)}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.btn-primary{background:var(--green);color:#fff}
+.btn-navy{background:var(--navy);color:#fff}
+.btn-light{background:var(--white);color:var(--navy);border-color:var(--line)}
+.btn-danger{background:var(--white);color:var(--red);border-color:#F1C4C4}
+.btn-danger-fill{background:var(--red);color:#fff}
+.btn-sm{min-height:42px;padding:6px 12px;font-size:14px;border-radius:12px}
+.btn-lg{min-height:58px;font-size:18px}
+.link{background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;padding:8px;min-height:40px;font-weight:600}
+
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-weight:600;font-size:14px}
+.field input,.field select{
+  min-height:50px;border:2px solid var(--line);border-radius:var(--r-md);padding:8px 14px;background:var(--white);width:100%;
+}
+.field input:focus,.field select:focus{border-color:var(--green);outline:none}
+.field input.bad{border-color:var(--red)}
+.field input[dir="ltr"]{text-align:right}
+.err{color:var(--red);font-size:13px;font-weight:600;min-height:0}
+.err:empty{display:none}
+
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:999px;font-size:12.5px;font-weight:700;white-space:nowrap}
+.b-ok{background:var(--green-soft);color:#0E6B4D}
+.b-warn{background:var(--yellow-soft);color:#8A6A00}
+.b-info{background:var(--navy-soft);color:var(--navy)}
+.b-bad{background:var(--red-soft);color:#A82B2B}
+.b-done{background:#E8EDF2;color:#486581}
+
+.notice{border-radius:var(--r-md);padding:12px 14px;font-size:14px;border:1px solid transparent}
+.n-warn{background:var(--yellow-soft);border-color:#F1DE9B;color:#6B5200}
+.n-bad{background:var(--red-soft);border-color:#F1C4C4;color:#A82B2B}
+.n-ok{background:var(--green-soft);border-color:#CDEBDD;color:#0E6B4D}
+.n-info{background:var(--navy-soft);color:var(--navy)}
+
+.empty{text-align:center;padding:28px 12px;color:var(--muted)}
+.empty .ic{width:44px;height:44px;margin-bottom:6px;opacity:.6}
+.empty b{display:block;color:var(--text);margin-bottom:4px;font-size:16px}
+
+.ic{display:inline-block;vertical-align:middle;flex:0 0 auto}
+
+/* مسار الرحلة: نقطة الانطلاق ← الوجهة */
+.route{display:flex;flex-direction:column;gap:0}
+.route .stop{display:flex;gap:12px;align-items:flex-start;position:relative;padding-bottom:12px}
+.route .stop:last-child{padding-bottom:0}
+.route .dot{width:14px;height:14px;border-radius:50%;background:var(--green);margin-top:6px;flex:0 0 14px;box-shadow:0 0 0 4px var(--green-soft)}
+.route .stop.to .dot{background:var(--navy);border-radius:3px;box-shadow:0 0 0 4px var(--navy-soft)}
+.route .stop:not(:last-child)::before{content:"";position:absolute;right:6px;top:22px;bottom:2px;border-right:2px dashed #B8C4D0}
+.route small{display:block;color:var(--muted);font-size:12.5px}
+
+.kv{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:15px}
+.kv:last-child{border-bottom:0}
+.kv span:first-child{color:var(--muted)}
+.kv span:last-child{font-weight:600;text-align:left}
+
+/* مراحل الطلب */
+.steps{display:flex;justify-content:space-between;gap:4px;margin:6px 0 2px}
+.step{flex:1;text-align:center;font-size:11.5px;color:var(--muted);position:relative;font-weight:600}
+.step i{display:block;width:22px;height:22px;border-radius:50%;background:var(--line);margin:0 auto 4px;position:relative;z-index:1}
+.step.on{color:var(--green)}
+.step.on i{background:var(--green)}
+.step:not(:last-child)::after{content:"";position:absolute;top:10px;right:50%;width:100%;height:2px;background:var(--line)}
+.step.on:not(:last-child)::after{background:var(--green)}
+
+/* إحصائيات الإدارة */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap)}
+.stat{background:var(--white);border:1px solid var(--line);border-radius:var(--r-lg);padding:14px}
+.stat b{display:block;font-size:30px;line-height:1.1;color:var(--navy)}
+.stat span{font-size:13px;color:var(--muted);font-weight:600}
+.stat.hl{background:var(--navy);border-color:var(--navy)}
+.stat.hl b{color:#fff}.stat.hl span{color:#B8C7D6}
+@media (min-width:521px){ .stats{grid-template-columns:1fr 1fr 1fr} }
+
+.tabs{display:flex;background:var(--navy-soft);padding:4px;border-radius:var(--r-md);gap:4px}
+.tabs button{flex:1;border:0;background:none;min-height:44px;border-radius:11px;font-weight:700;color:var(--navy);cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--white);box-shadow:0 1px 3px rgba(16,42,67,.15)}
+
+.list-item{display:flex;flex-direction:column;gap:10px}
+.avatar{width:48px;height:48px;border-radius:50%;background:var(--navy);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;flex:0 0 48px}
+
+/* خيارات نوع المشوار */
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap)}
+.opt{position:relative;display:block;cursor:pointer}
+.opt input{position:absolute;opacity:0;inset:0;width:100%;height:100%;cursor:pointer}
+.opt span{display:block;border:2px solid var(--line);background:var(--white);border-radius:var(--r-md);padding:10px 12px;min-height:66px}
+.opt b{display:block;font-size:15px}
+.opt small{color:var(--muted);font-size:12.5px}
+.opt input:checked + span{border-color:var(--green);background:var(--green-soft)}
+.opt input:focus-visible + span{outline:3px solid var(--yellow);outline-offset:2px}
+
+/* الخريطة التجريبية */
+.map{position:relative;border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--line);background:#DDE7EE}
+.map svg{display:block;width:100%;height:auto}
+.map .tag{position:absolute;bottom:8px;right:8px;background:rgba(255,255,255,.92);border-radius:8px;padding:3px 8px;font-size:11.5px;font-weight:700;color:var(--muted)}
+.locbtn{position:absolute;top:8px;left:8px}
+
+/* شاشة البداية */
+.hero{background:var(--navy);color:#fff;padding:36px 20px 44px;text-align:center;position:relative;border-radius:0 0 34px 34px}
+.hero .wordmark{font-size:60px;font-weight:800;line-height:1.1;letter-spacing:0}
+.hero .latin{font-size:13px;letter-spacing:.42em;color:#9FB3C8;font-weight:700;margin-top:2px;direction:ltr}
+.hero .slogan{font-size:19px;font-weight:600;margin-top:14px;color:#D7F2E5}
+.road{height:6px;margin:22px auto 0;width:70%;background:repeating-linear-gradient(to left,var(--yellow) 0 18px,transparent 18px 32px);border-radius:3px}
+.hero svg{margin:0 auto 6px;display:block}
+
+/* الانتظار */
+.spinner{width:64px;height:64px;border-radius:50%;border:6px solid var(--green-soft);border-top-color:var(--green);animation:spin 1s linear infinite;margin:10px auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.center{text-align:center}
+
+/* الإشعارات والنافذة */
+#toast{
+  position:absolute;left:12px;right:12px;bottom:78px;z-index:50;padding:12px 16px;border-radius:var(--r-md);
+  color:#fff;font-weight:600;font-size:14.5px;background:var(--navy);box-shadow:0 8px 24px rgba(0,0,0,.22);
+  transform:translateY(20px);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;
+}
+#toast.show{opacity:1;transform:none}
+#toast.ok{background:var(--green)} #toast.err{background:var(--red)} #toast.warn{background:#8A6A00}
+#modal{position:absolute;inset:0;background:rgba(16,42,67,.55);z-index:60;display:flex;align-items:flex-end;justify-content:center;padding:12px}
+#modal .sheet{background:var(--white);border-radius:var(--r-lg);padding:20px;width:100%;display:flex;flex-direction:column;gap:14px}
+#modal h3{font-size:18px}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+
+<!-- إطار التطبيق: لا تظهر شاشة واحدة إلا في كل مرة -->
+<main id="phone" aria-label="تطبيق ركشتي التجريبي">
+  <header id="top" hidden>
+    <button class="icon-btn" id="btn-back" data-act="back" aria-label="رجوع" hidden></button>
+    <h2 id="title"></h2>
+    <button class="chip" data-act="roles" aria-label="تبديل الدور للاختبار"></button>
+  </header>
+
+  <div id="main">
+    <section class="screen flush" id="scr-welcome" hidden></section>
+    <section class="screen" id="scr-cHome" hidden></section>
+    <section class="screen" id="scr-cRegister" hidden></section>
+    <section class="screen" id="scr-searching" hidden></section>
+    <section class="screen" id="scr-order" hidden></section>
+    <section class="screen" id="scr-driverInfo" hidden></section>
+    <section class="screen" id="scr-dRegister" hidden></section>
+    <section class="screen" id="scr-dPending" hidden></section>
+    <section class="screen" id="scr-dHome" hidden></section>
+    <section class="screen" id="scr-dRequest" hidden></section>
+    <section class="screen" id="scr-dAccount" hidden></section>
+    <section class="screen" id="scr-aLogin" hidden></section>
+    <section class="screen" id="scr-aDash" hidden></section>
+    <section class="screen" id="scr-aDrivers" hidden></section>
+    <section class="screen" id="scr-aOrders" hidden></section>
+  </div>
+
+  <nav id="nav" aria-label="التنقل الرئيسي" hidden></nav>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <div id="modal" hidden role="dialog" aria-modal="true"></div>
+</main>
+
+<script>
+(function () {
+'use strict';
+
+/* ============================================================
+   1) ثوابت وأدوات مساعدة
+   ============================================================ */
+const KEY = 'rakashti_proto_v1';          // البيانات المشتركة (localStorage)
+const SKEY = 'rakashti_proto_session_v1'; // جلسة هذه النافذة فقط (sessionStorage)
+const DAY = 864e5;
+const NO_DRIVER_MS = 40000;               // مهلة اعتبار "لم يتم العثور على سائق" عند عدم وجود سائق متاح
+const CITIES = ['الخرطوم','أم درمان','بحري','بورتسودان','كسلا','ود مدني','القضارف','الأبيض','عطبرة','نيالا','كوستي'];
+const RICK_TYPES = ['ركشة عادية','ركشة كبيرة (٣ ركاب)'];
+const ACTIVE = ['waiting','sent','accepted','ongoing'];
+
+const RIDE_STATUS = {
+  waiting:   { t:'بانتظار سائق',            c:'warn' },
+  sent:      { t:'أُرسل الطلب إلى السائق',  c:'info' },
+  accepted:  { t:'وافق السائق',             c:'ok'   },
+  ongoing:   { t:'الرحلة جارية',            c:'ok'   },
+  completed: { t:'اكتملت الرحلة',           c:'done' },
+  cancelled: { t:'أُلغي الطلب',             c:'bad'  },
+  nodriver:  { t:'لم يتم العثور على سائق',  c:'bad'  }
+};
+const APPROVAL = {
+  pending:  { t:'بانتظار موافقة المسؤول', c:'warn' },
+  approved: { t:'مقبول',                   c:'ok'   },
+  rejected: { t:'مرفوض',                   c:'bad'  }
+};
+const RIDE_TYPE = { private:'مشوار خاص', short:'مشوار قصير' };
+
+const $  = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num = n => Number(n).toLocaleString('ar-EG');
+const fmtTime = t => new Date(t).toLocaleTimeString('ar-EG', { hour:'2-digit', minute:'2-digit' });
+const fmtDate = t => new Date(t).toLocaleDateString('ar-EG', { year:'numeric', month:'2-digit', day:'2-digit' });
+const fmtDT = t => fmtDate(t) + ' ' + fmtTime(t);
+// تحويل الأرقام العربية إلى لاتينية وإزالة الفواصل
+const toLatin = s => String(s || '').replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[\s\-()]/g, '');
+const ltr = s => '<span class="ltr">' + esc(s) + '</span>';
+
+/* ============================================================
+   2) أيقونات SVG خفيفة
+   ============================================================ */
+const ICONS = {
+  home:'M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z',
+  list:'M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01',
+  user:'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z',
+  back:'M5 12h14M13 6l6 6-6 6',
+  pin:'M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11zM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z',
+  phone:'M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z',
+  swap:'M7 7h12l-3-3M17 17H5l3 3',
+  locate:'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM12 2v3M12 19v3M2 12h3M19 12h3',
+  chart:'M4 20V10M10 20V4M16 20v-7M22 20H2',
+  users:'M17 21v-2a4 4 0 0 0-3-3.9M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2M16 3.1a4 4 0 0 1 0 7.8',
+  inbox:'M22 12h-6l-2 3h-4l-2-3H2M5.5 5h13l3.5 7v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6z'
+};
+const icon = (n, s) => '<svg class="ic" width="' + (s || 22) + '" height="' + (s || 22) + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + ICONS[n] + '"/></svg>';
+
+/* ============================================================
+   3) إدارة البيانات: localStorage (مشتركة) + sessionStorage (الجلسة)
+   ============================================================ */
+let storageOk = true;
+let state = null;
+let session = null;
+
+function seedState() {
+  const now = Date.now();
+  const mk = (n, name, city, num_, phone) => ({
+    id:'D-' + n, name, phone, city, rickshawType:RICK_TYPES[0], rickshawNumber:num_,
+    approvalStatus:'approved', availabilityStatus:'offline',
+    subscriptionStatus:'active', subStart:now, subEnd:now + 7 * DAY, createdAt:now
+  });
+  return {
+    v:1, seq:{ c:0, d:102, r:0 },
+    customers:[],
+    drivers:[
+      mk(101, 'سائق تجريبي (١)', 'الخرطوم', 'خ-١٠١', '0900000001'),
+      mk(102, 'سائق تجريبي (٢)', 'أم درمان', 'أ-٢٠٢', '0900000002')
+    ],
+    rides:[]
+  };
+}
+function readStore() {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (!raw) return null;
+    const s = JSON.parse(raw);
+    return s && s.v === 1 ? s : null;
+  } catch (e) { storageOk = false; return null; }
+}
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(state)); }
+  catch (e) { storageOk = false; }
+}
+// إعادة قراءة أحدث نسخة قبل أي تعديل (لدعم أكثر من تبويب في المتصفح نفسه)
+function sync() {
+  if (!storageOk) return;
+  const s = readStore();
+  if (s) state = s;
+}
+function loadSession() {
+  try { const raw = sessionStorage.getItem(SKEY); if (raw) return JSON.parse(raw); } catch (e) {}
+  return null;
+}
+function saveSession() {
+  try { sessionStorage.setItem(SKEY, JSON.stringify(session)); } catch (e) {}
+}
+function freshSession() {
+  return { customerId:null, driverId:null, admin:false, rideId:null, reqId:null,
+           screen:'welcome', hist:[], draft:{ pickup:'', destination:'', rideType:'private', coords:null }, afterRegister:null };
+}
+state = readStore() || seedState();
+save();
+session = Object.assign(freshSession(), loadSession() || {});
+
+const nextId = kind => {
+  state.seq[kind] += 1;
+  return kind === 'c' ? 'C-' + (500 + state.seq.c) : kind === 'd' ? 'D-' + state.seq.d : 'R-' + (1000 + state.seq.r);
+};
+
+/* ============================================================
+   4) منطق النموذج (Customer / Driver / RideRequest)
+   ============================================================ */
+const getCustomer = id => state.customers.find(c => c.id === id) || null;
+const getDriver = id => state.drivers.find(d => d.id === id) || null;
+const getRide = id => state.rides.find(r => r.id === id) || null;
+const myCustomer = () => getCustomer(session.customerId);
+const myDriver = () => getDriver(session.driverId);
+const myRide = () => getRide(session.rideId);
+
+const subActive = d => d.subscriptionStatus === 'active' && !!d.subEnd && Date.now() <= d.subEnd;
+const driverCanReceive = d => d.approvalStatus === 'approved' && d.availabilityStatus === 'online' && subActive(d);
+const eligibleDrivers = r => state.drivers.filter(d => driverCanReceive(d) && !r.rejectedBy.includes(d.id));
+const visibleRequestsFor = d =>
+  driverCanReceive(d) ? state.rides.filter(r => (r.status === 'waiting' || r.status === 'sent') && !r.rejectedBy.includes(d.id)) : [];
+const driverCurrentJob = d => state.rides.find(r => r.driverId === d.id && (r.status === 'accepted' || r.status === 'ongoing')) || null;
+
+function validName(s) { return String(s || '').trim().length >= 2; }
+function validPhone(s) { return /^(?:\+?249|0)[19]\d{8}$/.test(toLatin(s)); }
+function fail(msg, field) { return { ok:false, msg, field }; }
+
+/** يوازن حالات الطلبات والسائقين مع القواعد. يعيد true إذا تغيّر شيء. */
+function reconcile() {
+  let changed = false;
+  state.drivers.forEach(d => {
+    if (d.availabilityStatus === 'online' && (d.approvalStatus !== 'approved' || !subActive(d))) {
+      d.availabilityStatus = 'offline'; changed = true;
+    }
+  });
+  state.rides.forEach(r => {
+    if (r.status !== 'waiting' && r.status !== 'sent') return;
+    const n = eligibleDrivers(r).length;
+    if (n > 0 && r.status === 'waiting') { r.status = 'sent'; changed = true; }
+    else if (n === 0) {
+      if (r.status === 'sent') { r.status = 'waiting'; changed = true; }
+      if (r.status === 'waiting' && (r.rejectedBy.length > 0 || Date.now() - r.searchStartedAt > NO_DRIVER_MS)) {
+        r.status = 'nodriver'; changed = true;
+      }
+    }
+  });
+  return changed;
+}
+
+function createCustomer(name, phone) {
+  if (!validName(name)) return fail('اكتب اسمك (حرفان على الأقل).', 'name');
+  if (!validPhone(phone)) return fail('رقم الهاتف غير صحيح. مثال: 0912345678', 'phone');
+  sync();
+  const p = toLatin(phone).replace(/^\+?249/, '0');
+  let c = state.customers.find(x => x.phone === p);
+  if (!c) { c = { id:nextId('c'), name:name.trim(), phone:p, createdAt:Date.now() }; state.customers.push(c); }
+  save();
+  session.customerId = c.id; saveSession();
+  return { ok:true, customer:c };
+}
+
+function registerDriver(f) {
+  if (!validName(f.name)) return fail('اكتب الاسم الكامل (حرفان على الأقل).', 'name');
+  if (!validPhone(f.phone)) return fail('رقم الهاتف غير صحيح. مثال: 0912345678', 'phone');
+  if (!CITIES.includes(f.city)) return fail('اختر المدينة.', 'city');
+  if (!RICK_TYPES.includes(f.type)) return fail('اختر نوع الركشة.', 'type');
+  if (String(f.number || '').trim().length < 2) return fail('اكتب رقم الركشة.', 'number');
+  sync();
+  const p = toLatin(f.phone).replace(/^\+?249/, '0');
+  if (state.drivers.some(d => d.phone === p)) return fail('هذا الرقم مسجّل من قبل. ادخل من قائمة الحسابات أدناه.', 'phone');
+  const d = {
+    id:nextId('d'), name:f.name.trim(), phone:p, city:f.city, rickshawType:f.type, rickshawNumber:f.number.trim(),
+    approvalStatus:'pending', availabilityStatus:'offline', subscriptionStatus:'inactive', subStart:null, subEnd:null, createdAt:Date.now()
+  };
+  state.drivers.push(d); save();
+  session.driverId = d.id; saveSession();
+  return { ok:true, driver:d };
+}
+
+function approveDriver(id) {
+  sync(); const d = getDriver(id); if (!d) return fail('السائق غير موجود.');
+  d.approvalStatus = 'approved';
+  if (!d.subStart) { d.subscriptionStatus = 'active'; d.subStart = Date.now(); d.subEnd = d.subStart + 7 * DAY; } // اشتراك تجريبي ٧ أيام عند أول موافقة
+  reconcile(); save(); return { ok:true, driver:d };
+}
+function rejectDriver(id) {
+  sync(); const d = getDriver(id); if (!d) return fail('السائق غير موجود.');
+  d.approvalStatus = 'rejected'; d.availabilityStatus = 'offline';
+  reconcile(); save(); return { ok:true, driver:d };
+}
+function toggleSubscription(id) {
+  sync(); const d = getDriver(id); if (!d) return fail('السائق غير موجود.');
+  if (subActive(d)) { d.subscriptionStatus = 'inactive'; }
+  else { d.subscriptionStatus = 'active'; d.subStart = Date.now(); d.subEnd = d.subStart + 7 * DAY; }
+  reconcile(); save(); return { ok:true, driver:d };
+}
+function setAvailability(id, on) {
+  sync(); const d = getDriver(id); if (!d) return fail('السائق غير موجود.');
+  if (on) {
+    if (d.approvalStatus !== 'approved') return fail('لا يمكنك استقبال الطلبات قبل موافقة المسؤول.');
+    if (!subActive(d)) return fail('اشتراكك التجريبي غير نشط. اطلب من المسؤول تفعيله.');
+    d.availabilityStatus = 'online';
+  } else d.availabilityStatus = 'offline';
+  reconcile(); save(); return { ok:true, driver:d };
+}
+
+function createRideRequest(draft) {
+  const pickup = String(draft.pickup || '').trim(), dest = String(draft.destination || '').trim();
+  if (!pickup) return fail('اكتب موقع الانطلاق أو استخدم «تحديد موقعي».', 'pickup');
+  if (!dest) return fail('اكتب وجهتك.', 'dest');
+  sync();
+  const c = myCustomer();
+  if (!c) return { ok:false, needRegister:true, msg:'سجّل بياناتك التجريبية أولاً لإرسال الطلب.' };
+  if (state.rides.some(r => r.customerId === c.id && ACTIVE.includes(r.status))) return fail('لديك طلب جارٍ بالفعل. افتحه أو ألغِه أولاً.');
+  const now = Date.now();
+  const ride = {
+    id:nextId('r'), customerId:c.id, driverId:null, pickup, pickupCoords:draft.coords || null, destination:dest,
+    rideType:draft.rideType === 'short' ? 'short' : 'private', status:'waiting', createdAt:now, searchStartedAt:now,
+    rejectedBy:[], acceptedAt:null
+  };
+  state.rides.push(ride); reconcile(); save();
+  session.rideId = ride.id; saveSession();
+  return { ok:true, ride };
+}
+
+function acceptRideRequest(rideId, driverId) {
+  sync(); reconcile();
+  const r = getRide(rideId), d = getDriver(driverId);
+  if (!r || !d) return fail('الطلب غير موجود.');
+  if (r.status === 'cancelled') return fail('ألغى العميل هذا الطلب.');
+  if (r.driverId && r.driverId !== d.id) return fail('قبل سائق آخر هذا الطلب.');
+  if (r.status !== 'waiting' && r.status !== 'sent') return fail('هذا الطلب لم يعد متاحاً.');
+  if (!driverCanReceive(d)) return fail('لا يمكنك قبول الطلبات الآن (الحساب أو التوفر أو الاشتراك).');
+  if (driverCurrentJob(d)) return fail('أنهِ رحلتك الحالية قبل قبول طلب جديد.');
+  r.driverId = d.id; r.status = 'accepted'; r.acceptedAt = Date.now();
+  save(); return { ok:true, ride:r };
+}
+function rejectRideRequest(rideId, driverId) {
+  sync();
+  const r = getRide(rideId); if (!r) return fail('الطلب غير موجود.');
+  if (r.status !== 'waiting' && r.status !== 'sent') return fail('هذا الطلب لم يعد متاحاً.');
+  if (!r.rejectedBy.includes(driverId)) r.rejectedBy.push(driverId);
+  r.status = 'waiting';           // يعود الطلب ليُعرض على سائق آخر
+  r.searchStartedAt = Date.now();
+  reconcile(); save(); return { ok:true, ride:r };
+}
+function cancelRideRequest(rideId) {
+  sync();
+  const r = getRide(rideId); if (!r) return fail('الطلب غير موجود.');
+  if (!['waiting','sent','accepted','nodriver'].includes(r.status)) return fail('لا يمكن إلغاء الطلب بعد بدء الرحلة أو انتهائها.');
+  r.status = 'cancelled'; save(); return { ok:true, ride:r };
+}
+function retryRide(rideId) {
+  sync();
+  const r = getRide(rideId); if (!r || r.status !== 'nodriver') return fail('لا يمكن إعادة المحاولة.');
+  r.rejectedBy = []; r.status = 'waiting'; r.searchStartedAt = Date.now();
+  reconcile(); save(); return { ok:true, ride:r };
+}
+/** تغييرات الحالة التي يقوم بها السائق: accepted→ongoing→completed */
+function updateRideStatus(rideId, to, driverId) {
+  sync();
+  const r = getRide(rideId); if (!r) return fail('الطلب غير موجود.');
+  if (r.driverId !== driverId) return fail('هذا الطلب ليس لك.');
+  const ok = (r.status === 'accepted' && to === 'ongoing') || (r.status === 'ongoing' && to === 'completed');
+  if (!ok) return fail(r.status === 'cancelled' ? 'ألغى العميل هذا الطلب.' : 'لا يمكن تنفيذ هذا الإجراء الآن.');
+  r.status = to; save(); return { ok:true, ride:r };
+}
+
+/* ============================================================
+   5) واجهة: إشعارات + نافذة تأكيد
+   ============================================================ */
+let toastTimer = null;
+function toast(msg, type) {
+  const t = $('#toast');
+  t.textContent = msg; t.className = 'show ' + (type || '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.className = ''; }, 3000);
+}
+let confirmCb = null;
+function confirmDialog(o, cb) {
+  confirmCb = cb;
+  const m = $('#modal');
+  m.innerHTML = '<div class="sheet"><h3>' + esc(o.title) + '</h3><p class="muted">' + esc(o.msg) + '</p>' +
+    '<div class="row"><button class="btn ' + (o.danger ? 'btn-danger-fill' : 'btn-primary') + '" data-modal="yes">' + esc(o.yes) + '</button>' +
+    '<button class="btn btn-light" data-modal="no">' + esc(o.no || 'تراجع') + '</button></div></div>';
+  m.hidden = false;
+  const b = $('[data-modal="no"]', m); if (b) b.focus();
+}
+function closeModal() { $('#modal').hidden = true; confirmCb = null; }
+
+/* ============================================================
+   6) عناصر عرض مشتركة
+   ============================================================ */
+const badge = (text, cls) => '<span class="badge b-' + cls + '">' + esc(text) + '</span>';
+const rideBadge = r => badge(RIDE_STATUS[r.status].t, RIDE_STATUS[r.status].c);
+const notice = (cls, html) => '<div class="notice n-' + cls + '">' + html + '</div>';
+const emptyState = (ic, title, text) => '<div class="empty">' + icon(ic, 44) + '<b>' + esc(title) + '</b><span>' + esc(text) + '</span></div>';
+const field = (id, label, input) => '<div class="field"><label for="' + id + '">' + label + '</label>' + input + '<div class="err" id="e-' + id + '" role="alert"></div></div>';
+
+function routeBlock(r) {
+  return '<div class="route"><div class="stop"><span class="dot"></span><div><small>من</small>' + esc(r.pickup) + '</div></div>' +
+         '<div class="stop to"><span class="dot"></span><div><small>إلى</small>' + esc(r.destination) + '</div></div></div>';
+}
+function subText(d) {
+  if (d.subscriptionStatus === 'active' && d.subEnd && Date.now() > d.subEnd) return { t:'منتهي', c:'bad' };
+  return subActive(d) ? { t:'نشط (تجريبي)', c:'ok' } : { t:'غير نشط', c:'bad' };
+}
+function subBadge(d) { const s = subText(d); return badge(s.t, s.c); }
+const driverNameOf = r => { const d = r.driverId && getDriver(r.driverId); return d ? d.name : null; };
+const customerNameOf = r => { const c = getCustomer(r.customerId); return c ? c.name : 'عميل'; };
+const kv = (k, v) => '<div class="kv"><span>' + esc(k) + '</span><span>' + v + '</span></div>';
+
+/** خريطة تجريبية مرسومة بـ SVG — ليست خريطة حقيقية ولا تعكس موقع المستخدم */
+function mapSVG(dest) {
+  const xs = [40, 110, 180, 250, 310], ys = [30, 80, 130, 175];
+  let roads = '';
+  xs.forEach(x => { roads += '<path d="M' + x + ' 0V200"/>'; });
+  ys.forEach(y => { roads += '<path d="M0 ' + y + 'H340"/>'; });
+  const blocks = '<rect x="120" y="90" width="52" height="30" rx="6" fill="#CFE8DB"/><rect x="190" y="38" width="52" height="34" rx="6" fill="#CFE8DB"/><rect x="48" y="38" width="54" height="34" rx="6" fill="#EAF0F5"/><rect x="258" y="88" width="44" height="34" rx="6" fill="#EAF0F5"/><rect x="48" y="138" width="54" height="30" rx="6" fill="#EAF0F5"/>';
+  const px = 110, py = 130;
+  let route = '', destPin = '';
+  if (dest && dest.trim()) {
+    let h = 0; for (const ch of dest.trim()) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+    const dx = [180, 250, 310][h % 3], dy = [30, 80, 175][(h >> 3) % 3];
+    route = '<path d="M' + px + ' ' + py + 'H' + dx + 'V' + dy + '" fill="none" stroke="#168A65" stroke-width="4" stroke-dasharray="8 6" stroke-linecap="round"/>';
+    destPin = '<g transform="translate(' + dx + ' ' + dy + ')"><rect x="-9" y="-9" width="18" height="18" rx="4" fill="#102A43" stroke="#fff" stroke-width="3"/></g>';
+  }
+  return '<svg viewBox="0 0 340 200" role="img" aria-label="خريطة تجريبية مرسومة للتوضيح فقط"><rect width="340" height="200" fill="#DDE7EE"/>' + blocks +
+    '<g stroke="#fff" stroke-width="9" fill="none">' + roads + '</g>' + route + destPin +
+    '<g transform="translate(' + px + ' ' + py + ')"><circle r="16" fill="#168A65" fill-opacity=".22"/><circle r="8" fill="#168A65" stroke="#fff" stroke-width="3"/></g></svg>';
+}
+
+/* ============================================================
+   7) الشاشات الخمس عشرة (دوال العرض)
+   ============================================================ */
+
+/* ---- الشاشة 1: البداية ---- */
+function viewWelcome() {
+  return '<div class="hero">' +
+    '<svg width="86" height="62" viewBox="0 0 86 62" aria-hidden="true"><path d="M8 40V22a6 6 0 0 1 6-6h32l14 14h12a6 6 0 0 1 6 6v4H8z" fill="#168A65"/><path d="M20 22h24l8 8H20z" fill="#E6F5EE"/><circle cx="22" cy="48" r="9" fill="#F2C94C" stroke="#102A43" stroke-width="3"/><circle cx="66" cy="48" r="9" fill="#F2C94C" stroke="#102A43" stroke-width="3"/></svg>' +
+    '<h1 class="wordmark">ركشتي</h1><div class="latin">RAKASHTI</div>' +
+    '<p class="slogan">ركشتك أقرب ليك</p><div class="road" aria-hidden="true"></div></div>' +
+    '<div class="stack" style="padding:22px var(--pad) var(--pad)">' +
+      '<button class="btn btn-primary btn-lg" data-act="start-customer">' + icon('pin') + ' اطلب ركشة</button>' +
+      '<button class="btn btn-light" data-act="customer-login">' + icon('user') + ' تسجيل الدخول</button>' +
+      '<p class="fine" style="margin-top:6px">— للتجربة فقط: ادخل بأي دور —</p>' +
+      '<div class="row"><button class="btn btn-navy" data-act="enter-driver">دخول السائق</button>' +
+      '<button class="btn btn-navy" data-act="enter-admin">لوحة المسؤول</button></div>' +
+      notice('warn', 'هذا نموذج أولي للواجهات فقط. البيانات تُحفظ في هذا المتصفح ولا تُرسل لأي خادم، ولا يوجد دفع أو توزيع حقيقي للطلبات.') +
+      '<button class="link" data-act="reset-demo">إعادة ضبط البيانات التجريبية</button>' +
+    '</div>';
+}
+
+/* ---- الشاشة 2: الصفحة الرئيسية للعميل ---- */
+function viewCHome() {
+  const c = myCustomer(), dr = session.draft, cur = myRide();
+  let banner = '';
+  if (cur && ACTIVE.includes(cur.status)) {
+    banner = '<div class="card soft stack"><div class="between"><b>لديك طلب جارٍ</b>' + rideBadge(cur) + '</div>' +
+      '<button class="btn btn-primary btn-sm" data-act="resume-ride">متابعة الطلب</button></div>';
+  }
+  return '<div><h3>' + (c ? 'مرحباً يا ' + esc(c.name) : 'مرحباً بيك') + '</h3><p class="muted small">وين ماشي النهاردة؟</p></div>' + banner +
+    '<div class="map"><div id="mapbox">' + mapSVG(dr.destination) + '</div>' +
+      '<button class="chip locbtn" id="btn-locate" data-act="locate">' + icon('locate', 18) + ' تحديد موقعي</button>' +
+      '<span class="tag">خريطة تجريبية — للتوضيح فقط</span></div>' +
+    '<form class="stack" data-submit="search" novalidate>' +
+      field('f-pickup', 'موقع الانطلاق', '<input id="f-pickup" autocomplete="off" placeholder="مثال: الحي أو السوق أو المعلم القريب" value="' + esc(dr.pickup) + '">') +
+      '<div id="locnote" class="small muted" ' + (dr.coords ? '' : 'hidden') + '>' + (dr.coords ? 'تم أخذ الإحداثيات من جهازك.' : '') + '</div>' +
+      field('f-dest', 'الوجهة', '<input id="f-dest" autocomplete="off" placeholder="وين عايز تمشي؟" value="' + esc(dr.destination) + '">') +
+      '<div class="opts" role="radiogroup" aria-label="نوع المشوار">' +
+        '<label class="opt"><input type="radio" name="rideType" value="private"' + (dr.rideType !== 'short' ? ' checked' : '') + '><span><b>مشوار خاص</b><small>الركشة ليك براك</small></span></label>' +
+        '<label class="opt"><input type="radio" name="rideType" value="short"' + (dr.rideType === 'short' ? ' checked' : '') + '><span><b>مشوار قصير</b><small>مسافة قريبة</small></span></label>' +
+      '</div>' +
+      '<button class="btn btn-primary btn-lg" type="submit">ابحث عن ركشة</button>' +
+    '</form>';
+}
+
+/* ---- الشاشة 3: تسجيل العميل ---- */
+function viewCRegister() {
+  const c = myCustomer();
+  const hint = session.afterRegister ? notice('warn', 'لإرسال طلب الرحلة نحتاج بياناتك التجريبية أولاً.') : '';
+  const logged = c ? '<div class="card soft between"><div><b>' + esc(c.name) + '</b><div class="small muted">' + ltr(c.phone) + '</div></div>' + badge('مسجّل', 'ok') + '</div>' : '';
+  return hint + logged +
+    '<form class="stack" data-submit="register-customer" novalidate>' +
+      '<h3>' + (c ? 'تغيير الحساب التجريبي' : 'إنشاء حساب تجريبي') + '</h3>' +
+      field('f-cname', 'الاسم', '<input id="f-cname" autocomplete="off" placeholder="اسمك">') +
+      field('f-cphone', 'رقم الهاتف', '<input id="f-cphone" type="tel" inputmode="tel" dir="ltr" placeholder="09XXXXXXXX">') +
+      '<button class="btn btn-primary" type="submit">إنشاء حساب تجريبي</button>' +
+    '</form>' +
+    notice('warn', 'التحقق الحقيقي من رقم الهاتف غير مفعّل في هذا النموذج. لا ترسل رمزاً ولا تتصل بأي جهة. استخدم بيانات تجريبية.') +
+    (c ? '<button class="btn btn-danger" data-act="customer-logout">تسجيل الخروج</button>' : '');
+}
+
+/* ---- الشاشة 4: البحث عن ركشة ---- */
+function viewSearching() {
+  const r = myRide(); if (!r) return emptyState('inbox', 'لا يوجد طلب', 'ابدأ بطلب ركشة جديد.');
+  let body;
+  if (r.status === 'nodriver') {
+    body = '<div class="center stack">' + notice('bad', '<b>لم يتم العثور على سائق</b><br>لا يوجد سائق تجريبي متصل ومتاح لهذا الطلب الآن.') +
+      '<button class="btn btn-primary" data-act="retry-ride" data-id="' + r.id + '">إعادة المحاولة</button>' +
+      '<button class="btn btn-light" data-act="new-ride">العودة للرئيسية</button></div>';
+  } else if (r.status === 'cancelled') {
+    body = '<div class="center stack">' + notice('bad', 'أُلغي هذا الطلب.') + '<button class="btn btn-primary" data-act="new-ride">طلب جديد</button></div>';
+  } else {
+    body = '<div class="center"><div class="spinner" role="progressbar" aria-label="جاري البحث"></div>' +
+      '<h3 style="margin-top:6px">جاري البحث عن أقرب ركشة متاحة</h3>' +
+      '<p class="muted small" style="margin:6px 0 10px">' + rideBadge(r) + '</p></div>' +
+      '<div class="card">' + routeBlock(r) + '</div>' +
+      notice('info', 'نموذج تجريبي: يظهر الطلب للسائقين التجريبيين المتصلين فقط. لا يوجد تحديد حقيقي لأقرب سائق.') +
+      '<button class="btn btn-danger" data-act="cancel-ride" data-id="' + r.id + '">إلغاء البحث</button>';
+  }
+  return '<div class="stack" style="margin:auto 0">' + body + '</div>';
+}
+
+/* ---- الشاشة 5: تفاصيل الطلب ---- */
+function viewOrder() {
+  const r = myRide();
+  if (!r) return emptyState('list', 'لا يوجد طلب حالياً', 'عندما ترسل طلباً ستجد تفاصيله وحالته هنا.') +
+    '<button class="btn btn-primary" data-act="new-ride">اطلب ركشة</button>';
+  const idx = { waiting:0, sent:1, accepted:2, ongoing:3, completed:4 }[r.status];
+  const labels = ['أُنشئ الطلب', 'أُرسل للسائق', 'وافق السائق', 'الرحلة جارية', 'اكتملت'];
+  const steps = idx == null ? '' : '<div class="steps" aria-label="مراحل الطلب">' + labels.map((l, i) => '<div class="step' + (i <= idx ? ' on' : '') + '"><i></i>' + l + '</div>').join('') + '</div>';
+  const d = r.driverId && getDriver(r.driverId);
+  let acts = '';
+  if (d && r.status !== 'cancelled') acts += '<button class="btn btn-navy" data-act="open-driver">بيانات السائق</button>';
+  if (['waiting','sent'].includes(r.status)) acts += '<button class="btn btn-light" data-act="resume-ride">شاشة البحث</button>';
+  if (['waiting','sent','accepted','nodriver'].includes(r.status)) acts += '<button class="btn btn-danger" data-act="cancel-ride" data-id="' + r.id + '">إلغاء الطلب</button>';
+  if (['completed','cancelled','nodriver'].includes(r.status)) acts += '<button class="btn btn-primary" data-act="new-ride">طلب جديد</button>';
+  return '<div class="card stack"><div class="between"><b>طلب <bdi>' + ltr(r.id) + '</bdi></b>' + rideBadge(r) + '</div>' + steps + '</div>' +
+    '<div class="card">' + routeBlock(r) + '</div>' +
+    '<div class="card">' + kv('نوع المشوار', RIDE_TYPE[r.rideType]) + kv('وقت إنشاء الطلب', fmtDT(r.createdAt)) + kv('رقم الطلب (تجريبي)', ltr(r.id)) + kv('الحالة', esc(RIDE_STATUS[r.status].t)) + '</div>' +
+    '<div class="stack">' + acts + '</div>';
+}
+
+/* ---- الشاشة 6: تفاصيل السائق ---- */
+function viewDriverInfo() {
+  const r = myRide(), d = r && r.driverId && getDriver(r.driverId);
+  if (!r || !d) return emptyState('user', 'لا يوجد سائق بعد', 'ستظهر بيانات السائق هنا عندما يقبل طلبك.') + '<button class="btn btn-light" data-act="open-order">تفاصيل الطلب</button>';
+  const canCancel = ['accepted'].includes(r.status);
+  let st = r.status === 'accepted' ? notice('ok', 'وافق السائق على طلبك وهو في الطريق إليك (تجريبي).') :
+           r.status === 'ongoing' ? notice('ok', 'الرحلة جارية الآن.') :
+           r.status === 'completed' ? notice('info', 'اكتملت الرحلة. شكراً لتجربتك!') :
+           r.status === 'cancelled' ? notice('bad', 'أُلغي الطلب.') : '';
+  return st + '<div class="card stack"><div class="row" style="gap:12px"><span class="avatar" style="flex:0 0 48px">' + esc(d.name.trim().charAt(0)) + '</span>' +
+      '<div style="flex:1"><b>' + esc(d.name) + '</b><div class="small muted">' + esc(d.city) + '</div></div>' + rideBadge(r) + '</div>' +
+      kv('رقم الهاتف (تجريبي)', ltr(d.phone)) + kv('نوع الركشة', esc(d.rickshawType)) + kv('رقم الركشة', esc(d.rickshawNumber)) + kv('حالة الرحلة', esc(RIDE_STATUS[r.status].t)) + '</div>' +
+    '<div class="card">' + routeBlock(r) + '</div>' +
+    '<button class="btn btn-primary" data-act="fake-call">' + icon('phone') + ' اتصال تجريبي</button>' +
+    '<button class="btn btn-light" data-act="open-order">تفاصيل الطلب</button>' +
+    (canCancel ? '<button class="btn btn-danger" data-act="cancel-ride" data-id="' + r.id + '">إلغاء الطلب</button>' : '');
+}
+
+/* ---- الشاشة 7: تسجيل السائق ---- */
+function viewDRegister() {
+  const existing = state.drivers.map(d =>
+    '<div class="card between"><div><b>' + esc(d.name) + '</b><div class="small muted">' + esc(d.city) + ' — ' + esc(d.rickshawNumber) + '</div>' + badge(APPROVAL[d.approvalStatus].t, APPROVAL[d.approvalStatus].c) + '</div>' +
+    '<button class="btn btn-light btn-sm" style="width:auto" data-act="pick-driver" data-id="' + d.id + '">دخول</button></div>').join('');
+  return '<form class="stack" data-submit="register-driver" novalidate><h3>تسجيل سائق جديد</h3>' +
+      field('f-dname', 'الاسم الكامل', '<input id="f-dname" autocomplete="off">') +
+      field('f-dphone', 'رقم الهاتف', '<input id="f-dphone" type="tel" inputmode="tel" dir="ltr" placeholder="09XXXXXXXX">') +
+      field('f-dcity', 'المدينة', '<select id="f-dcity"><option value="">اختر المدينة</option>' + CITIES.map(c => '<option>' + c + '</option>').join('') + '</select>') +
+      field('f-dtype', 'نوع الركشة', '<select id="f-dtype"><option value="">اختر النوع</option>' + RICK_TYPES.map(c => '<option>' + c + '</option>').join('') + '</select>') +
+      field('f-dnum', 'رقم الركشة', '<input id="f-dnum" autocomplete="off" placeholder="مثال: خ-١٢٣">') +
+      '<button class="btn btn-primary btn-lg" type="submit">إرسال طلب التسجيل</button></form>' +
+    notice('warn', 'استخدم بيانات تجريبية فقط. لا يتم التحقق من أي وثيقة أو رقم هاتف.') +
+    '<h3 style="margin-top:8px">أو ادخل بحساب تجريبي موجود</h3><div class="stack">' + existing + '</div>';
+}
+
+/* ---- الشاشة 8: انتظار الموافقة ---- */
+function viewDPending() {
+  const d = myDriver(); if (!d) return '';
+  const a = APPROVAL[d.approvalStatus];
+  let msg = d.approvalStatus === 'pending' ? '<h3>حسابك قيد المراجعة</h3><p class="muted">سيراجع المسؤول طلب تسجيلك. افتح لوحة المسؤول من شاشة البداية للموافقة (للتجربة).</p>' :
+            d.approvalStatus === 'rejected' ? '<h3>تم رفض طلب التسجيل</h3><p class="muted">يمكنك إرسال طلب جديد ببيانات صحيحة.</p>' :
+            '<h3>تمت الموافقة على حسابك</h3><p class="muted">يمكنك الآن الدخول إلى لوحة السائق.</p>';
+  return '<div class="card stack center" style="margin-top:auto">' + (d.approvalStatus === 'pending' ? '<div class="spinner" aria-hidden="true"></div>' : '') + msg +
+      '<div>' + badge(a.t, a.c) + '</div></div>' +
+    '<div class="card">' + kv('الاسم', esc(d.name)) + kv('المدينة', esc(d.city)) + kv('رقم الركشة', esc(d.rickshawNumber)) + kv('حالة طلب التسجيل', esc(a.t)) + '</div>' +
+    '<div class="stack" style="margin-bottom:auto">' +
+      (d.approvalStatus === 'approved' ? '<button class="btn btn-primary" data-act="to-driver-home">الدخول إلى لوحة السائق</button>' : '') +
+      (d.approvalStatus === 'rejected' ? '<button class="btn btn-primary" data-act="d-logout">تسجيل سائق جديد</button>' : '') +
+      '<button class="btn btn-light" data-act="roles">العودة إلى الشاشة الرئيسية</button></div>';
+}
+
+/* ---- الشاشة 9: الصفحة الرئيسية للسائق ---- */
+function viewDHome() {
+  const d = myDriver(); if (!d) return '';
+  const reqs = visibleRequestsFor(d), job = driverCurrentJob(d), online = d.availabilityStatus === 'online';
+  let why = '';
+  if (!online) why = notice('warn', 'استقبال الطلبات متوقف. فعّله لتظهر لك الطلبات الجديدة.');
+  else if (!subActive(d)) why = notice('bad', 'اشتراكك التجريبي غير نشط.');
+  const list = !online || !subActive(d) ? '' :
+    reqs.length ? reqs.map(r => '<div class="card list-item"><div class="between"><b>طلب ' + ltr(r.id) + '</b>' + badge(RIDE_TYPE[r.rideType], 'info') + '</div>' + routeBlock(r) +
+        '<div class="between small muted"><span>' + esc(fmtTime(r.createdAt)) + '</span><span>' + esc(customerNameOf(r)) + '</span></div>' +
+        '<button class="btn btn-primary btn-sm" data-act="d-open" data-id="' + r.id + '">عرض الطلب</button></div>').join('')
+    : emptyState('inbox', 'لا توجد طلبات الآن', 'سنعرض هنا أي طلب جديد من العملاء فور وصوله.');
+  const jobCard = job ? '<div class="card soft stack"><div class="between"><b>رحلتك الحالية</b>' + rideBadge(job) + '</div>' + routeBlock(job) +
+        '<button class="btn btn-primary btn-sm" data-act="d-open" data-id="' + job.id + '">متابعة الرحلة</button></div>' : '';
+  return '<div class="between"><div><h3>أهلاً ' + esc(d.name) + '</h3><div class="small muted">' + esc(d.city) + ' — ' + esc(d.rickshawNumber) + '</div></div></div>' +
+    '<div class="card stack"><div class="between"><span class="muted">حالة الحساب</span>' + badge(APPROVAL[d.approvalStatus].t, APPROVAL[d.approvalStatus].c) + '</div>' +
+      '<div class="between"><span class="muted">حالة الاشتراك</span>' + subBadge(d) + '</div>' +
+      '<div class="between"><span class="muted">الطلبات الواردة</span><b>' + num(reqs.length) + '</b></div>' +
+      '<button class="btn ' + (online ? 'btn-danger' : 'btn-primary') + '" data-act="d-toggle">' + (online ? 'إيقاف استقبال الطلبات' : 'تفعيل استقبال الطلبات') + '</button></div>' +
+    jobCard + why + '<h3>الطلبات الجديدة</h3>' + (list || '<p class="muted small">فعّل الاستقبال لعرض الطلبات.</p>');
+}
+
+/* ---- الشاشة 10: تفاصيل طلب الرحلة ---- */
+function viewDRequest() {
+  const d = myDriver(), r = getRide(session.reqId); if (!d || !r) return '';
+  const mine = r.driverId === d.id;
+  let banner = '', acts = '';
+  const open = r.status === 'waiting' || r.status === 'sent';
+  if (r.status === 'cancelled') banner = notice('bad', 'ألغى العميل هذا الطلب ولا يمكن قبوله.');
+  else if (r.driverId && !mine) banner = notice('warn', 'قبل سائق آخر هذا الطلب.');
+  else if (r.status === 'nodriver') banner = notice('warn', 'هذا الطلب لم يعد متاحاً.');
+  else if (open && r.rejectedBy.includes(d.id)) banner = notice('warn', 'رفضت هذا الطلب. قد يُعرض على سائق آخر.');
+  if (open && !r.rejectedBy.includes(d.id)) {
+    acts = '<button class="btn btn-primary btn-lg" data-act="d-accept" data-id="' + r.id + '"' + (driverCanReceive(d) ? '' : ' disabled') + '>قبول الطلب</button>' +
+           '<button class="btn btn-danger" data-act="d-reject" data-id="' + r.id + '">رفض الطلب</button>';
+  } else if (mine && r.status === 'accepted') {
+    banner = notice('ok', 'قبلت الطلب. توجّه إلى موقع العميل.');
+    acts = '<button class="btn btn-primary btn-lg" data-act="d-start" data-id="' + r.id + '">بدء الرحلة</button>';
+  } else if (mine && r.status === 'ongoing') {
+    banner = notice('ok', 'الرحلة جارية.');
+    acts = '<button class="btn btn-primary btn-lg" data-act="d-finish" data-id="' + r.id + '">إنهاء الرحلة</button>';
+  } else if (mine && r.status === 'completed') banner = notice('info', 'اكتملت الرحلة.');
+  return banner +
+    '<div class="card stack"><div class="between"><b>طلب ' + ltr(r.id) + '</b>' + rideBadge(r) + '</div>' + routeBlock(r) + '</div>' +
+    '<div class="map"><div>' + mapSVG(r.destination) + '</div><span class="tag">موقع العميل (رسم تجريبي)</span></div>' +
+    '<div class="card">' + kv('العميل', esc(customerNameOf(r))) + kv('نوع المشوار', RIDE_TYPE[r.rideType]) + kv('وقت الطلب', fmtDT(r.createdAt)) +
+      (r.pickupCoords ? kv('إحداثيات العميل', ltr(r.pickupCoords.lat.toFixed(5) + ', ' + r.pickupCoords.lng.toFixed(5))) : '') + '</div>' +
+    '<div class="stack">' + acts + '</div>';
+}
+
+/* ---- الشاشة 11: حساب السائق والاشتراك ---- */
+function viewDAccount() {
+  const d = myDriver(); if (!d) return '';
+  const online = d.availabilityStatus === 'online';
+  return '<div class="card stack"><div class="row" style="gap:12px"><span class="avatar" style="flex:0 0 48px">' + esc(d.name.trim().charAt(0)) + '</span><div style="flex:1"><b>' + esc(d.name) + '</b><div class="small muted">' + ltr(d.phone) + '</div></div></div>' +
+      kv('المدينة', esc(d.city)) + kv('نوع الركشة', esc(d.rickshawType)) + kv('رقم الركشة', esc(d.rickshawNumber)) + '</div>' +
+    '<div class="card">' + kv('حالة الموافقة', badge(APPROVAL[d.approvalStatus].t, APPROVAL[d.approvalStatus].c)) +
+      kv('حالة التوفر', online ? badge('متاح لاستقبال الطلبات', 'ok') : badge('متوقف', 'done')) +
+      kv('حالة الاشتراك', subBadge(d)) +
+      kv('بداية الاشتراك التجريبي', d.subStart ? esc(fmtDate(d.subStart)) : '—') + kv('نهاية الاشتراك التجريبي', d.subEnd ? esc(fmtDate(d.subEnd)) : '—') + '</div>' +
+    notice('warn', 'الاشتراكات الحقيقية والدفع الإلكتروني غير مفعّلين. هذه قواعد تجريبية: يفعّل المسؤول اشتراكاً لمدة ٧ أيام.') +
+    '<button class="btn btn-light" data-act="back">رجوع</button>' +
+    '<button class="btn btn-danger" data-act="d-logout">تسجيل الخروج من حساب السائق</button>';
+}
+
+/* ---- الشاشة 12: دخول المسؤول ---- */
+function viewALogin() {
+  return '<form class="stack" data-submit="admin-login" novalidate><h3>دخول لوحة الإدارة التجريبية</h3>' +
+      notice('info', 'بيانات الد
